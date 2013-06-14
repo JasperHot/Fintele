@@ -101,7 +101,7 @@ class wechatCallbackapiTest
 	{
 		//get post string, May be due to the different environments
 		$this->postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
-		//$logs->setLog($this->postStr);
+		
 		//get post data into XML object, and to DataArray
 		if (!empty($this->postStr))
 			$this->postObj = simplexml_load_string($this->postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
