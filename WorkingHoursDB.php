@@ -108,7 +108,36 @@ if (!$result)
 	echo 'Error delete User !</br>';
 }*/
 
+//update item
+/*$queryUP = "update Record set inorout=2 where inorout=0";
 
+$result = $db->query($queryUP);
+if (!$result)
+{
+echo 'Error update Record !</br>';
+}*/
+//search
+/*$queryCI = "select ID,datetime from Record where TO_DAYS(datetime)=TO_DAYS('2013-06-12') and ID='o5M22jqVr_u4ofsVCGiUeUoZ9qYM' order by datetime limit 0,1";
+
+$resultCI = $db->query($queryCI);
+echo "Show ID & datetime in Record ".$dbname.":</br></br>";
+if(!$resultCI){
+	echo "Error select</br>";
+}else{
+    if($resultCI->num_rows==0){
+    	echo "empty select</br>";
+    }
+    for ($i=0;$i<$resultCI->num_rows;$i++){
+	    $row = $resultCI->fetch_row();
+	    //echo $row[0];
+	    echo $row[1];
+	    $timestampCI=strtotime($row[1]);
+	    $hour=date("H",$timestampCI);
+	    $minute=date("i",$timestampCI);
+	    echo $timestampCI."-".$hour."-".$minute.'</br>';
+    }
+    $resultCI->close();
+}*/
 //check db
 $query = "show tables";
 $result = $db->query($query);

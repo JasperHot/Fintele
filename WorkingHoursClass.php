@@ -103,7 +103,29 @@ class WorkingHours
 			    $logs->setLog("checkin:".$query2);
 				$result2 = $db->query($query2);
 				if ($result2){
-					$this->outputStr = "登入成功,时间".date("Y-m-d H:i:s",$timestamp);
+					
+					$queryCI = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS(now()) "
+							."and ID='".$this->userID."' and inorout=1 order by datetime limit 0,1";
+					$logs->setLog("checkin:select:".$queryCI);
+						
+					$resultCI = $db->query($queryCI);
+					if(!$resultCI){
+						$logs->setLog("checkout:select failed:".$db->error);
+					}else{
+						if($resultCI->num_rows==0){
+							$logs->setLog("checkin:select failed: can't find insert before");
+						}
+						for ($i=0;$i<$resultCI->num_rows;$i++){
+							$row = $resultCI->fetch_row();
+					
+							$timestampCI=strtotime($row[0]);
+							$hourCI=date("H",$timestampCI)+9;
+							if($hourCI>24){$hourCI-=24;}
+							$minuteCI=date("i",$timestampCI);
+						}
+					}
+					$resultCI->close();
+					$this->outputStr = "登入成功,时间".date("Y-m-d H:i:s",$timestamp).". 预计下班时间: ".$hourCI."点".$minuteCI."分";
 					$logs->setLog("checkin:insert sucessful");
 				}
 				else {
@@ -160,17 +182,64 @@ class WorkingHours
 				$hour=date("H",$timestamp);
 				$minute=date("i",$timestamp);
 				$logs->setLog("checkout:".$hour.":".$minute);
-				$query2 = "insert into Record values ('".$this->userID."', '".date("Y-m-d H:i:s",$timestamp)."', 0)";/*0-out*/
-				$logs->setLog("checkout:".$query2);
-				$result2 = $db->query($query2);
-				if ($result2){
-					$this->outputStr = "登出成功,时间".date("Y-m-d H:i:s",$timestamp);
-					$logs->setLog("checkout:insert sucessful");
+				
+
+				$queryCI = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS(now()) "
+							."and ID='".$this->userID."' and inorout=1 order by datetime limit 0,1";
+				$logs->setLog("checkin:select:".$queryCI);
+					
+				$resultCI = $db->query($queryCI);
+				if(!$resultCI){
+					$this->outputStr = "登出失败";
+			        $logs->setLog("checkout:select failed:".$db->error);
+				}else{
+					if($resultCI->num_rows==0){
+						$this->outputStr = "请先登入，再登出";
+					}
+					for ($i=0;$i<$resultCI->num_rows;$i++){
+						$row = $resultCI->fetch_row();
+
+						$timestampCI=strtotime($row[0]);
+						$hourCI=date("H",$timestampCI);
+						$minuteCI=date("i",$timestampCI);
+                        if($minute>=$minuteCI){
+                            $minute-=$minuteCI;
+                            if($hour>=$hourCI){
+                            	$hour-=$hourCI;
+                            }
+                            else{
+                            	$minute=0;
+                            	$logs->setLog("checkout:caculate hour error! hourCI=".
+                            				$hourCI.", minuteCI=".$minuteCI.", hour=".$hour.",minute=".$minute);
+                            }
+                        }
+                        else{
+                            if($hour>$hourCI){
+                            	$minute=$minute+60-$minuteCI;
+                            	$hour=$hour-1-$hourCI;
+                            }
+                            else{
+                            	$minute=0;
+                            	$logs->setLog("checkout:caculate hour error! hourCI=".
+                            				$hourCI.", minuteCI=".$minuteCI.", hour=".$hour.",minute=".$minute);
+                            }
+                        }
+                        
+                        $query2 = "insert into Record values ('".$this->userID."', '".date("Y-m-d H:i:s",$timestamp)."', 2)";/*2-out*/
+                        $logs->setLog("checkout:".$query2);
+                        $result2 = $db->query($query2);
+                        if ($result2){
+                        	$this->outputStr = "登出成功,时间".date("Y-m-d H:i:s",$timestamp).". 今日工作".$hour."小时".$minute."分钟";
+                        	$logs->setLog("checkout:insert sucessful");
+                        }
+                        else {
+                        	$this->outputStr = "登出失败 :(";
+                        	$logs->setLog("checkout:insert failed:".$db->error);
+                        }
+					}
+					$resultCI->close();
 				}
-				else {
-					$this->outputStr = "登出失败 :(";
-					$logs->setLog("checkout:insert failed:".$db->error);
-				}
+				
 			}
 				
 			$result->close();
