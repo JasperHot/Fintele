@@ -53,7 +53,7 @@ class wechatCallbackapiTest
 		//excute actions with DB
 		$actionCommand = trim($this->postObj->Content);
 
-		$logs->setLog($this->postObj->ToUserName.";".
+		$logs->setLogW(__FILE__, __LINE__,$this->postObj->ToUserName.";".
 				$this->postObj->FromUserName.";".
 				$this->postObj->CreateTime.";".
 				$this->postObj->MsgType.";".
@@ -93,7 +93,7 @@ class wechatCallbackapiTest
 		$msgType = "text";
 		$resultXMLStr = sprintf($this->textTpl, $fromUsername, $toUsername, $time, $msgType, $this->resultStr);
 		//send response
-		$logs->setLog($resultXMLStr);
+		$logs->setLogW(__FILE__, __LINE__,$resultXMLStr);
 		echo $resultXMLStr;
 	}
 

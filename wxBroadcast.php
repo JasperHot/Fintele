@@ -49,7 +49,7 @@ include ('Logs.php');
 		$msgType = "text";
 		$resultXMLStr = sprintf($textTpl, $toUsername, $fromUsername, $time, $msgType, $textContent);
 		//send response
-		$logs->setLog($resultXMLStr);
+		$logs->setLogW(__FILE__, __LINE__,$resultXMLStr);
 		echo $resultXMLStr;
 	}
 //check user

@@ -21,7 +21,7 @@ class WorkingHours
 			exit;
 		//find if it is inserted
 		$query = "select ID from User where ID='".$this->userID."'";
-		$logs->setLog("register:select:".$query);
+		$logs->setLogW(__FILE__, __LINE__,"register:select:".$query);
 
 		$result = $db->query($query);
 
@@ -29,12 +29,12 @@ class WorkingHours
 		if(!$result)
 		{
 			$this->outputStr = "注册失败";
-			$logs->setLog("register:select failed:".$db->error);
+			$logs->setLogW(__FILE__, __LINE__,"register:select failed:".$db->error);
 		}
 		else
 		{
 			//registered
-			$logs->setLog("register:select sucessful");
+			$logs->setLogW(__FILE__, __LINE__,"register:select sucessful");
 
 			if($result->num_rows==0)
 			{
@@ -43,11 +43,11 @@ class WorkingHours
 				$result2 = $db->query($query2);
 				if ($result2){
 					$this->outputStr = "注册成功 :)";
-					$logs->setLog("register:insert sucessful");
+					$logs->setLogW(__FILE__, __LINE__,"register:insert sucessful");
 				}
 				else {
 					$this->outputStr = "注册失败 :(";
-					$logs->setLog("register:insert failed:".$db->error);
+					$logs->setLogW(__FILE__, __LINE__,"register:insert failed:".$db->error);
 				}
 			}
 			else
@@ -75,19 +75,19 @@ class WorkingHours
 			exit;
 		//find if it is inserted
 		$query = "select ID from User where ID='".$this->userID."'";
-		$logs->setLog("checkin:select:".$query);
+		$logs->setLogW(__FILE__, __LINE__,"checkin:select:".$query);
 		
 		$result = $db->query($query);
 		
 		if(!$result)
 		{
 			$this->outputStr = "登入失败";
-			$logs->setLog("checkin:select failed:".$db->error);
+			$logs->setLogW(__FILE__, __LINE__,"checkin:select failed:".$db->error);
 		}
 		else/*if it registered*/
 		{
 			//registered
-			$logs->setLog("checkin:select sucessful");
+			$logs->setLogW(__FILE__, __LINE__,"checkin:select sucessful");
 			
 			if($result->num_rows==0)
 			{
@@ -98,22 +98,22 @@ class WorkingHours
 				$timestamp=time();
 				$hour=date("H",$timestamp);
 				$minute=date("i",$timestamp);
-				$logs->setLog("checkin:".$hour.":".$minute);
+				$logs->setLogW(__FILE__, __LINE__,"checkin:".$hour.":".$minute);
 			    $query2 = "insert into Record values ('".$this->userID."', '".date("Y-m-d H:i:s",$timestamp)."', 1)";/*1-in*/
-			    $logs->setLog("checkin:".$query2);
+			    $logs->setLogW(__FILE__, __LINE__,"checkin:".$query2);
 				$result2 = $db->query($query2);
 				if ($result2){
 					
-					$queryCI = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS(now()) "
+					$queryCI = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS('".date("Y-m-d",$timestamp)."') "
 							."and ID='".$this->userID."' and inorout=1 order by datetime limit 0,1";
-					$logs->setLog("checkin:select:".$queryCI);
+					$logs->setLogW(__FILE__, __LINE__,"checkin:select:".$queryCI);
 						
 					$resultCI = $db->query($queryCI);
 					if(!$resultCI){
-						$logs->setLog("checkout:select failed:".$db->error);
+						$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
 					}else{
 						if($resultCI->num_rows==0){
-							$logs->setLog("checkin:select failed: can't find insert before");
+							$logs->setLogW(__FILE__, __LINE__,"checkin:select failed: can't find insert before");
 						}
 						for ($i=0;$i<$resultCI->num_rows;$i++){
 							$row = $resultCI->fetch_row();
@@ -126,11 +126,11 @@ class WorkingHours
 					}
 					$resultCI->close();
 					$this->outputStr = "登入成功,时间".date("Y-m-d H:i:s",$timestamp).". 预计下班时间: ".$hourCI."点".$minuteCI."分";
-					$logs->setLog("checkin:insert sucessful");
+					$logs->setLogW(__FILE__, __LINE__,"checkin:insert sucessful");
 				}
 				else {
 					$this->outputStr = "登入失败 :(";
-					$logs->setLog("checkin:insert failed:".$db->error);
+					$logs->setLogW(__FILE__, __LINE__,"checkin:insert failed:".$db->error);
 				}
 			}
 			
@@ -158,19 +158,19 @@ class WorkingHours
 			exit;
 		//find if it is inserted
 		$query = "select ID from User where ID='".$this->userID."'";
-		$logs->setLog("checkout:select:".$query);
+		$logs->setLogW(__FILE__, __LINE__,"checkout:select:".$query);
 		
 		$result = $db->query($query);
 		
 		if(!$result)
 		{
 			$this->outputStr = "登出失败";
-			$logs->setLog("checkout:select failed:".$db->error);
+			$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
 		}
 		else/*if it registered*/
 		{
 			//registered
-			$logs->setLog("checkout:select sucessful");
+			$logs->setLogW(__FILE__, __LINE__,"checkout:select sucessful");
 				
 			if($result->num_rows==0)
 			{
@@ -181,17 +181,17 @@ class WorkingHours
 				$timestamp=time();
 				$hour=date("H",$timestamp);
 				$minute=date("i",$timestamp);
-				$logs->setLog("checkout:".$hour.":".$minute);
+				$logs->setLogW(__FILE__, __LINE__,"checkout:".$hour.":".$minute);
 				
 
-				$queryCI = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS(now()) "
+				$queryCI = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS('".date("Y-m-d",$timestamp)."') "
 							."and ID='".$this->userID."' and inorout=1 order by datetime limit 0,1";
-				$logs->setLog("checkin:select:".$queryCI);
+				$logs->setLogW(__FILE__, __LINE__,"checkout:select:".$queryCI);
 					
 				$resultCI = $db->query($queryCI);
 				if(!$resultCI){
 					$this->outputStr = "登出失败";
-			        $logs->setLog("checkout:select failed:".$db->error);
+			        $logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
 				}else{
 					if($resultCI->num_rows==0){
 						$this->outputStr = "请先登入，再登出";
@@ -209,7 +209,7 @@ class WorkingHours
                             }
                             else{
                             	$minute=0;
-                            	$logs->setLog("checkout:caculate hour error! hourCI=".
+                            	$logs->setLogW(__FILE__, __LINE__,"checkout:caculate hour error! hourCI=".
                             				$hourCI.", minuteCI=".$minuteCI.", hour=".$hour.",minute=".$minute);
                             }
                         }
@@ -220,21 +220,21 @@ class WorkingHours
                             }
                             else{
                             	$minute=0;
-                            	$logs->setLog("checkout:caculate hour error! hourCI=".
+                            	$logs->setLogW(__FILE__, __LINE__,"checkout:caculate hour error! hourCI=".
                             				$hourCI.", minuteCI=".$minuteCI.", hour=".$hour.",minute=".$minute);
                             }
                         }
                         
                         $query2 = "insert into Record values ('".$this->userID."', '".date("Y-m-d H:i:s",$timestamp)."', 2)";/*2-out*/
-                        $logs->setLog("checkout:".$query2);
+                        $logs->setLogW(__FILE__, __LINE__,"checkout:".$query2);
                         $result2 = $db->query($query2);
                         if ($result2){
                         	$this->outputStr = "登出成功,时间".date("Y-m-d H:i:s",$timestamp).". 今日工作".$hour."小时".$minute."分钟";
-                        	$logs->setLog("checkout:insert sucessful");
+                        	$logs->setLogW(__FILE__, __LINE__,"checkout:insert sucessful");
                         }
                         else {
                         	$this->outputStr = "登出失败 :(";
-                        	$logs->setLog("checkout:insert failed:".$db->error);
+                        	$logs->setLogW(__FILE__, __LINE__,"checkout:insert failed:".$db->error);
                         }
 					}
 					$resultCI->close();

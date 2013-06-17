@@ -138,6 +138,17 @@ if(!$resultCI){
     }
     $resultCI->close();
 }*/
+//set mysql time zone
+/*$querySET = "SET time_zone = '+8:00'";
+$resultSET = $db->query($querySET);
+if(!$resultSET)
+	$logs->setLog("checkin:set time_zone failed:");*/
+
+//get milli second
+/*$time = explode ( " ", microtime () );
+$time2 = explode ( ".", ($time [0] * 1000) );
+$timestamp = $time2 [0];
+echo $time[0]."-".$time[1]."-".$time2[0]."-".$time2[1]."-".$timestamp."</br>";*/
 //check db
 $query = "show tables";
 $result = $db->query($query);

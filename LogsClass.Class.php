@@ -73,7 +73,7 @@ $this->_filehandle=fopen($path,"a+");
 */
 public function setLog($log){
 //传入的数组记录
-$str = '['.date("Y-m-d h:i:s ",time()).'ms '.microtime().'] ';
+$str = '['.date("Y-m-d h:i:s",time()).'ms '.microtime().'] ';
 //$str = '['.date("r",time()).' '.microtime().'] ';
 if(is_array($log)){
 foreach($log as $k => $v){
@@ -90,7 +90,29 @@ die("写入日志失败");
 }
 }
 
-
+/**
+ *作用:写入记录
+ *输入:要写入的记录
+ *输出:无
+ */
+public function setLogW($fName,$lName,$log){
+	//传入的数组记录
+	$str = '['.date("Y-m-d h:i:s",time()).'ms '.microtime().' '.$fName.' '.$lName.'] ';
+	//$str = '['.date("r",time()).' '.microtime().'] ';
+	if(is_array($log)){
+		foreach($log as $k => $v){
+			$str .= $k." : ".$v."\n";
+		}
+	}else{
+		$str .= $log."\n";
+	}
+	//global $log_file_path;
+	//$str .= $log_file_path;
+	//写日志
+	if(!fwrite($this->_filehandle,$str)){//写日志失败
+		die("写入日志失败");
+	}
+}
 /**
 *作用:写入记录
 *输入:要写入的记录
