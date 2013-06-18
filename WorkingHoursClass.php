@@ -95,43 +95,51 @@ class WorkingHours
 			}
 			else
 			{
-				$timestamp=time();
-				$hour=date("H",$timestamp);
-				$minute=date("i",$timestamp);
-				$logs->setLogW(__FILE__, __LINE__,"checkin:".$hour.":".$minute);
-			    $query2 = "insert into Record values ('".$this->userID."', '".date("Y-m-d H:i:s",$timestamp)."', 1)";/*1-in*/
-			    $logs->setLogW(__FILE__, __LINE__,"checkin:".$query2);
-				$result2 = $db->query($query2);
-				if ($result2){
-					
-					$queryCI = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS('".date("Y-m-d",$timestamp)."') "
-							."and ID='".$this->userID."' and inorout=1 order by datetime limit 0,1";
-					$logs->setLogW(__FILE__, __LINE__,"checkin:select:".$queryCI);
+				
+				$queryCI = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS('".date("Y-m-d",time())."') "
+						."and ID='".$this->userID."' and inorout=1 order by datetime limit 0,1";
+				$logs->setLogW(__FILE__, __LINE__,"checkin:select:".$queryCI);
+				
+				$resultCI = $db->query($queryCI);
+				if(!$resultCI){
+					$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
+				}else{
+					if($resultCI->num_rows==0){
 						
-					$resultCI = $db->query($queryCI);
-					if(!$resultCI){
-						$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
-					}else{
-						if($resultCI->num_rows==0){
-							$logs->setLogW(__FILE__, __LINE__,"checkin:select failed: can't find insert before");
+						$timestamp=time();
+						$hour=date("H",$timestamp);
+						$minute=date("i",$timestamp);
+						$logs->setLogW(__FILE__, __LINE__,"checkin:".$hour.":".$minute);
+						$query2 = "insert into Record values ('".$this->userID."', '".date("Y-m-d H:i:s",$timestamp)."', 1)";/*1-in*/
+						$logs->setLogW(__FILE__, __LINE__,"checkin:".$query2);
+						$result2 = $db->query($query2);
+						if ($result2){
+							$hour+=9;
+						    if($hour>24){$hour-=24;}
+							$this->outputStr = "登入成功,时间".date("Y-m-d H:i:s",$timestamp).". 预计下班时间: ".$hour."点".$minute."分";
+							$logs->setLogW(__FILE__, __LINE__,"checkin:insert sucessful");
 						}
-						for ($i=0;$i<$resultCI->num_rows;$i++){
-							$row = $resultCI->fetch_row();
-					
-							$timestampCI=strtotime($row[0]);
-							$hourCI=date("H",$timestampCI)+9;
-							if($hourCI>24){$hourCI-=24;}
-							$minuteCI=date("i",$timestampCI);
+						else {
+							$this->outputStr = "登入失败 :(";
+							$logs->setLogW(__FILE__, __LINE__,"checkin:insert failed:".$db->error);
 						}
+						
 					}
-					$resultCI->close();
-					$this->outputStr = "登入成功,时间".date("Y-m-d H:i:s",$timestamp).". 预计下班时间: ".$hourCI."点".$minuteCI."分";
-					$logs->setLogW(__FILE__, __LINE__,"checkin:insert sucessful");
+					else{
+					    for ($i=0;$i<$resultCI->num_rows;$i++){
+						    $row = $resultCI->fetch_row();
+							
+						    $timestampCI=strtotime($row[0]);
+						    $hourCI=date("H",$timestampCI)+9;
+						    if($hourCI>24){$hourCI-=24;}
+						    $minuteCI=date("i",$timestampCI);
+						    $this->outputStr = "今天已登入,时间".date("Y-m-d H:i:s",$timestampCI).". 预计下班时间: ".$hourCI."点".$minuteCI."分";
+						    $logs->setLogW(__FILE__, __LINE__,"checkin:select sucessful");
+					    }
+					}
 				}
-				else {
-					$this->outputStr = "登入失败 :(";
-					$logs->setLogW(__FILE__, __LINE__,"checkin:insert failed:".$db->error);
-				}
+				$resultCI->close();
+				
 			}
 			
 			$result->close();
@@ -181,6 +189,8 @@ class WorkingHours
 				$timestamp=time();
 				$hour=date("H",$timestamp);
 				$minute=date("i",$timestamp);
+				$hourNow=$hour;
+				$minuteNow=$minute;
 				$logs->setLogW(__FILE__, __LINE__,"checkout:".$hour.":".$minute);
 				
 
@@ -225,17 +235,117 @@ class WorkingHours
                             }
                         }
                         
-                        $query2 = "insert into Record values ('".$this->userID."', '".date("Y-m-d H:i:s",$timestamp)."', 2)";/*2-out*/
-                        $logs->setLogW(__FILE__, __LINE__,"checkout:".$query2);
-                        $result2 = $db->query($query2);
-                        if ($result2){
-                        	$this->outputStr = "登出成功,时间".date("Y-m-d H:i:s",$timestamp).". 今日工作".$hour."小时".$minute."分钟";
-                        	$logs->setLogW(__FILE__, __LINE__,"checkout:insert sucessful");
+                        $queryDC = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS('".date("Y-m-d",$timestamp)."') "
+							."and ID='".$this->userID."' and inorout=2 order by datetime limit 0,1";
+                        $logs->setLogW(__FILE__, __LINE__,"checkout:".$queryDC);
+                        $resultDC = $db->query($queryDC);
+                        if(!$resultDC){
+                        	$this->outputStr = "登出失败";
+                        	$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
+                        }else{
+                        	if($resultDC->num_rows==0){
+                        		//if no today record found, insert
+                        		$query2 = "insert into Record values ('".$this->userID."', '".date("Y-m-d H:i:s",$timestamp)."', 2)";/*2-out*/
+                        		$logs->setLogW(__FILE__, __LINE__,"checkout:".$query2);
+                        		$result2 = $db->query($query2);
+                        		if ($result2){
+                        			$this->outputStr = "登出成功,时间".date("Y-m-d H:i:s",$timestamp).". 今日工作".$hour."小时".$minute."分钟";
+                        			$logs->setLogW(__FILE__, __LINE__,"checkout:insert sucessful");
+                        			 
+                        			//update weekbalance & monthbalance
+                        			$queryBL = "select weekbalance,monthbalance from User where ID='".$this->userID."' limit 0,1";
+                        			$logs->setLogW(__FILE__, __LINE__,"checkout:select:".$queryBL);
+                        		
+                        			$resultBL = $db->query($queryBL);
+                        			if(!$resultBL){
+                        				$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
+                        			}else{
+                        				if($resultBL->num_rows==0){
+                        					$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
+                        				}
+                        				for ($i=0;$i<$resultBL->num_rows;$i++){
+                        					$row = $resultBL->fetch_row();
+                        					 
+                        					$row[0]+=($hour+$minute/60)-9;
+                        					$row[1]+=($hour+$minute/60)-9;
+                        		
+                        					$query3 = "update User set weekbalance=".$row[0].", monthbalance=".$row[1]." where ID='".$this->userID."'";
+                        					$logs->setLogW(__FILE__, __LINE__,"checkout:".$query3);
+                        					$result3 = $db->query($query3);
+                        					if (!$result3){
+                        						$logs->setLogW(__FILE__, __LINE__,"checkout:update failed:".$db->error);
+                        					}
+                        				}
+                        				$resultBL->close();
+                        			}
+                        			 
+                        		}
+                        		else {
+                        			$this->outputStr = "登出失败 :(";
+                        			$logs->setLogW(__FILE__, __LINE__,"checkout:insert failed:".$db->error);
+                        		}
+                        		
+                        	}
+                        	else{
+                        		$row = $resultDC->fetch_row();
+                        		$hourUP=date('H', strtotime($row[0]));
+                        		$minuteUP=date('i', strtotime($row[0]));
+                        		$logs->setLogW(__FILE__, __LINE__,"checkout:select sucessful. before checkout H:".$hourUP." M:".$minuteUP);
+                        		//if today record is found, update
+                        		$query2 = "update Record set  datetime='".date("Y-m-d H:i:s",$timestamp)."' where TO_DAYS(datetime)=TO_DAYS('".date("Y-m-d",$timestamp)."') "
+                        				."and ID='".$this->userID."' and inorout=2 ";
+                        		$logs->setLogW(__FILE__, __LINE__,"checkout:".$query2);
+                        		$result2 = $db->query($query2);
+                        		if ($result2){
+                        			$this->outputStr = "登出成功,时间".date("Y-m-d H:i:s",$timestamp).". 今日工作".$hour."小时".$minute."分钟";
+                        			$logs->setLogW(__FILE__, __LINE__,"checkout:update scessful");
+                        		
+                        			//update weekbalance & monthbalance
+                        			$queryBL = "select weekbalance,monthbalance from User where ID='".$this->userID."' limit 0,1";
+                        			$logs->setLogW(__FILE__, __LINE__,"checkout:select:".$queryBL);
+                        		
+                        			$resultBL = $db->query($queryBL);
+                        			if(!$resultBL){
+                        				$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
+                        			}else{
+                        				if($resultBL->num_rows==0){
+                        					$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
+                        				}
+                        				for ($i=0;$i<$resultBL->num_rows;$i++){
+                        					$row = $resultBL->fetch_row();
+                        					$logs->setLogW(__FILE__, __LINE__,"checkout:select sucessful. now checkout H:".$hour." M:".$minute);
+                        					if($minuteNow>=$minuteUP){
+                        						$minute=$minuteNow-$minuteUP;
+                        						$hour=$hourNow-$hourUP;
+                        					}
+                        					else {
+                        						$minute=$minuteNow+60-$minuteUP;
+                        						$hour=$hourNow-1-$hourUP;
+                        					}
+                        					
+                        					$row[0]+=($hour+$minute/60);
+                        					$row[1]+=($hour+$minute/60);
+                        		
+                        					$query3 = "update User set weekbalance=".$row[0].", monthbalance=".$row[1]." where ID='".$this->userID."'";
+                        					$logs->setLogW(__FILE__, __LINE__,"checkout:".$query3);
+                        					$result3 = $db->query($query3);
+                        					if (!$result3){
+                        						$logs->setLogW(__FILE__, __LINE__,"checkout:update failed:".$db->error);
+                        					}
+                        				}
+                        				$resultBL->close();
+                        			}
+                        		
+                        		}
+                        		else {
+                        			$this->outputStr = "登出失败 :(";
+                        			$logs->setLogW(__FILE__, __LINE__,"checkout:update failed:".$db->error);
+                        		}
+                        	}
+                        	$resultDC->close();
                         }
-                        else {
-                        	$this->outputStr = "登出失败 :(";
-                        	$logs->setLogW(__FILE__, __LINE__,"checkout:insert failed:".$db->error);
-                        }
+                        
+                        
 					}
 					$resultCI->close();
 				}
@@ -257,6 +367,66 @@ class WorkingHours
 	
 	public function CheckBalance ()
 	{
+		global $logs;
+		//connect to DB
+		@ $db = new mysqli($this->hostname, $this->username, $this->password, $this->dbname);
+		if (mysqli_connect_errno())
+			exit;
+		//find if it is inserted
+		$query = "select weekbalance,monthbalance from User where ID='".$this->userID."'";
+		$logs->setLogW(__FILE__, __LINE__,"checkbl:select:".$query);
+		
+		$result = $db->query($query);
+		
+		if(!$result)
+		{
+			$this->outputStr = "查询失败";
+			$logs->setLogW(__FILE__, __LINE__,"checkbl:select failed:".$db->error);
+		}
+		else//if it registered
+		{
+			//registered
+			$logs->setLogW(__FILE__, __LINE__,"checkbl:select sucessful");
+				
+			if($result->num_rows==0)
+			{
+				$this->outputStr = "请先注册，登入/登出后，再查询";
+			}
+			else
+			{
+				for ($i=0;$i<$result->num_rows;$i++){
+					$row = $result->fetch_row();
+					$weekbl=explode ( ".",$row[0]);	
+					if($weekbl[0]>0){
+						$weekblH=$weekbl[0];
+						$weekblM=explode ( ".",$weekbl[1]/10000*60);
+						$this->outputStr = "本周结余".$weekblH."小时".$weekblM[0]."分钟.";
+					}
+					else{
+						$weekblH=$weekbl[0]*(-1);
+						$weekblM=explode ( ".",$weekbl[1]/10000*60);
+						$this->outputStr = "本周缺席".$weekblH."小时".$weekblM[0]."分钟.";
+					}
+					$this->outputStr .="\n\r";
+					$monthbl=explode ( ".",$row[1]);
+					if($monthbl[0]>0){
+						$monthblH=$monthbl[0];
+						$monthlM=explode ( ".",$monthbl[1]/10000*60);
+						$this->outputStr .= "本月结余".$monthblH."小时".$monthblM[0]."分钟.";
+					}
+					else{
+						$monthblH=$monthbl[0]*(-1);
+						$monthblM=explode ( ".",$monthbl[1]/10000*60);
+						$this->outputStr .= "本月缺席".$monthblH."小时".$monthblM[0]."分钟.";
+					}
+					$logs->setLogW(__FILE__, __LINE__,"checkbl:query week H:".$weekbl[0]." M:".$weekblM[0]
+							.".  month H:".$monthbl[0]." M:".$monthblM[0]);
+				}
+				$result->close();
+			}
+			
+		}
+		$db->close();
 		//search and notify week balance and month balance in DB User_table
 	}
 	

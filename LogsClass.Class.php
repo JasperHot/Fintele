@@ -73,7 +73,7 @@ $this->_filehandle=fopen($path,"a+");
 */
 public function setLog($log){
 //传入的数组记录
-$str = '['.date("Y-m-d h:i:s",time()).'ms '.microtime().'] ';
+$str = '['.date("Y-m-d h:i:s",time()).' ms '.microtime().'] ';
 //$str = '['.date("r",time()).' '.microtime().'] ';
 if(is_array($log)){
 foreach($log as $k => $v){
@@ -97,7 +97,7 @@ die("写入日志失败");
  */
 public function setLogW($fName,$lName,$log){
 	//传入的数组记录
-	$str = '['.date("Y-m-d h:i:s",time()).'ms '.microtime().' '.$fName.' '.$lName.'] ';
+	$str = '['.date("Y-m-d h:i:s",time()).' ms '.microtime().' '.$fName.' '.$lName.'] ';
 	//$str = '['.date("r",time()).' '.microtime().'] ';
 	if(is_array($log)){
 		foreach($log as $k => $v){
@@ -120,7 +120,7 @@ public function setLogW($fName,$lName,$log){
 */
 public function p($log,$prj){
 //传入的数组记录
-$str = '['.date("Y-m-d h:i:s ",time()).'ms '.microtime().' '.$prj.'] ';
+$str = '['.date("Y-m-d h:i:s",time()).' ms '.microtime().' '.$prj.'] ';
 //$str = '['.date("r",time()).' '.microtime().'] ';
 /*
 if(is_array($log)){

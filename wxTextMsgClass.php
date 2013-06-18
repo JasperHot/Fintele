@@ -73,6 +73,10 @@ class wechatCallbackapiTest
 				$whObj->CheckOut();
 				$this->resultStr = $whObj->outputStr;
 				break;
+			case "查询" :
+				$whObj->CheckBalance();
+				$this->resultStr = $whObj->outputStr;
+				break;
 			default :
 				$this->resultStr = "你好！请先注册，输入\"注册\"。\n^_^"	;		
 		}

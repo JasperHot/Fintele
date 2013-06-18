@@ -116,6 +116,16 @@ if (!$result)
 {
 echo 'Error update Record !</br>';
 }*/
+
+//alter item
+/*$queryALTER = "alter table User modify monthbalance float(6,4)";
+
+$result = $db->query($queryALTER);
+if (!$result)
+{
+echo 'Error alter User !</br>';
+}*/
+
 //search
 /*$queryCI = "select ID,datetime from Record where TO_DAYS(datetime)=TO_DAYS('2013-06-12') and ID='o5M22jqVr_u4ofsVCGiUeUoZ9qYM' order by datetime limit 0,1";
 
