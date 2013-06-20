@@ -52,7 +52,7 @@ class WorkingHours
 			}
 			else
 			{
-				$this->outputStr = "已注册，无需重复注册。可输入\"登入\"或\"登出\"查询。";
+				$this->outputStr = "已注册,无需重复注册.可输入\"上班\",\"下班\"或\"查询\".";
 			}
 
 			$result->close();
@@ -81,7 +81,7 @@ class WorkingHours
 		
 		if(!$result)
 		{
-			$this->outputStr = "登入失败";
+			$this->outputStr = "上班失败";
 			$logs->setLogW(__FILE__, __LINE__,"checkin:select failed:".$db->error);
 		}
 		else/*if it registered*/
@@ -91,7 +91,7 @@ class WorkingHours
 			
 			if($result->num_rows==0)
 			{
-				$this->outputStr = "请先注册，再登入";
+				$this->outputStr = "请先注册，再上班";
 			}
 			else
 			{
@@ -116,11 +116,11 @@ class WorkingHours
 						if ($result2){
 							$hour+=9;
 						    if($hour>24){$hour-=24;}
-							$this->outputStr = "登入成功,时间".date("Y-m-d H:i:s",$timestamp).". 预计下班时间: ".$hour."点".$minute."分";
+							$this->outputStr = "上班成功,时间".date("Y-m-d H:i:s",$timestamp).". 预计下班时间: ".$hour."点".$minute."分";
 							$logs->setLogW(__FILE__, __LINE__,"checkin:insert sucessful");
 						}
 						else {
-							$this->outputStr = "登入失败 :(";
+							$this->outputStr = "上班失败 :(";
 							$logs->setLogW(__FILE__, __LINE__,"checkin:insert failed:".$db->error);
 						}
 						
@@ -133,7 +133,7 @@ class WorkingHours
 						    $hourCI=date("H",$timestampCI)+9;
 						    if($hourCI>24){$hourCI-=24;}
 						    $minuteCI=date("i",$timestampCI);
-						    $this->outputStr = "今天已登入,时间".date("Y-m-d H:i:s",$timestampCI).". 预计下班时间: ".$hourCI."点".$minuteCI."分";
+						    $this->outputStr = "今天已上班,时间".date("Y-m-d H:i:s",$timestampCI).". 预计下班时间: ".$hourCI."点".$minuteCI."分";
 						    $logs->setLogW(__FILE__, __LINE__,"checkin:select sucessful");
 					    }
 					}
@@ -172,7 +172,7 @@ class WorkingHours
 		
 		if(!$result)
 		{
-			$this->outputStr = "登出失败";
+			$this->outputStr = "下班失败";
 			$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
 		}
 		else/*if it registered*/
@@ -182,7 +182,7 @@ class WorkingHours
 				
 			if($result->num_rows==0)
 			{
-				$this->outputStr = "请先注册，再登出";
+				$this->outputStr = "请先注册，再下班";
 			}
 			else
 			{
@@ -200,11 +200,11 @@ class WorkingHours
 					
 				$resultCI = $db->query($queryCI);
 				if(!$resultCI){
-					$this->outputStr = "登出失败";
+					$this->outputStr = "下班失败";
 			        $logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
 				}else{
 					if($resultCI->num_rows==0){
-						$this->outputStr = "请先登入，再登出";
+						$this->outputStr = "请先上班，再下班";
 					}
 					for ($i=0;$i<$resultCI->num_rows;$i++){
 						$row = $resultCI->fetch_row();
@@ -240,7 +240,7 @@ class WorkingHours
                         $logs->setLogW(__FILE__, __LINE__,"checkout:".$queryDC);
                         $resultDC = $db->query($queryDC);
                         if(!$resultDC){
-                        	$this->outputStr = "登出失败";
+                        	$this->outputStr = "下班失败";
                         	$logs->setLogW(__FILE__, __LINE__,"checkout:select failed:".$db->error);
                         }else{
                         	if($resultDC->num_rows==0){
@@ -249,7 +249,7 @@ class WorkingHours
                         		$logs->setLogW(__FILE__, __LINE__,"checkout:".$query2);
                         		$result2 = $db->query($query2);
                         		if ($result2){
-                        			$this->outputStr = "登出成功,时间".date("Y-m-d H:i:s",$timestamp).". 今日工作".$hour."小时".$minute."分钟";
+                        			$this->outputStr = "下班成功,时间".date("Y-m-d H:i:s",$timestamp).". 今日工作".$hour."小时".$minute."分钟";
                         			$logs->setLogW(__FILE__, __LINE__,"checkout:insert sucessful");
                         			 
                         			//update weekbalance & monthbalance
@@ -281,7 +281,7 @@ class WorkingHours
                         			 
                         		}
                         		else {
-                        			$this->outputStr = "登出失败 :(";
+                        			$this->outputStr = "下班失败 :(";
                         			$logs->setLogW(__FILE__, __LINE__,"checkout:insert failed:".$db->error);
                         		}
                         		
@@ -297,7 +297,7 @@ class WorkingHours
                         		$logs->setLogW(__FILE__, __LINE__,"checkout:".$query2);
                         		$result2 = $db->query($query2);
                         		if ($result2){
-                        			$this->outputStr = "登出成功,时间".date("Y-m-d H:i:s",$timestamp).". 今日工作".$hour."小时".$minute."分钟";
+                        			$this->outputStr = "下班成功,时间".date("Y-m-d H:i:s",$timestamp).". 今日工作".$hour."小时".$minute."分钟";
                         			$logs->setLogW(__FILE__, __LINE__,"checkout:update scessful");
                         		
                         			//update weekbalance & monthbalance
@@ -338,7 +338,7 @@ class WorkingHours
                         		
                         		}
                         		else {
-                        			$this->outputStr = "登出失败 :(";
+                        			$this->outputStr = "下班失败 :(";
                         			$logs->setLogW(__FILE__, __LINE__,"checkout:update failed:".$db->error);
                         		}
                         	}
@@ -383,16 +383,15 @@ class WorkingHours
 			$this->outputStr = "查询失败";
 			$logs->setLogW(__FILE__, __LINE__,"checkbl:select failed:".$db->error);
 		}
-		else//if it registered
+		else//if select sucessful
 		{
-			//registered
 			$logs->setLogW(__FILE__, __LINE__,"checkbl:select sucessful");
 				
 			if($result->num_rows==0)
 			{
-				$this->outputStr = "请先注册，登入/登出后，再查询";
+				$this->outputStr = "请先注册，上班/下班后，再查询";
 			}
-			else
+			else//if it registered
 			{
 				for ($i=0;$i<$result->num_rows;$i++){
 					$row = $result->fetch_row();
@@ -411,7 +410,7 @@ class WorkingHours
 					$monthbl=explode ( ".",$row[1]);
 					if($monthbl[0]>0){
 						$monthblH=$monthbl[0];
-						$monthlM=explode ( ".",$monthbl[1]/10000*60);
+						$monthblM=explode ( ".",$monthbl[1]/10000*60);
 						$this->outputStr .= "本月结余".$monthblH."小时".$monthblM[0]."分钟.";
 					}
 					else{
@@ -428,6 +427,39 @@ class WorkingHours
 		}
 		$db->close();
 		//search and notify week balance and month balance in DB User_table
+	}
+	
+	public function CheckRegister ()
+	{
+		global $logs;
+		//connect to DB
+		@ $db = new mysqli($this->hostname, $this->username, $this->password, $this->dbname);
+		if (mysqli_connect_errno())
+			exit;
+		//find if it is inserted
+		$query = "select ID from User where ID='".$this->userID."'";
+		$logs->setLogW(__FILE__, __LINE__,"checkbl:select:".$query);
+		
+		$result = $db->query($query);
+		
+		if(!$result)
+		{
+			$this->outputStr = "查询失败";
+			$logs->setLogW(__FILE__, __LINE__,"checkbl:select failed:".$db->error);
+		}
+		else//if select sucessful
+		{
+			$logs->setLogW(__FILE__, __LINE__,"checkbl:select sucessful");
+			
+			if($result->num_rows==0)
+			{
+				$this->outputStr = "请先注册。";
+			}
+			else//if it registered
+			{
+				$this->outputStr = "请输入\"上班\",\"下班\"或\"查询\".";
+			}
+		}
 	}
 	
 	public function CheckRecord ()

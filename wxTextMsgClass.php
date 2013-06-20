@@ -65,11 +65,11 @@ class wechatCallbackapiTest
 				$whObj->Register();
 				$this->resultStr = $whObj->outputStr;
 				break;
-			case "登入" :
+			case "上班" :
 				$whObj->CheckIn();
 				$this->resultStr = $whObj->outputStr;
 				break;
-			case "登出" :
+			case "下班" :
 				$whObj->CheckOut();
 				$this->resultStr = $whObj->outputStr;
 				break;
@@ -78,7 +78,9 @@ class wechatCallbackapiTest
 				$this->resultStr = $whObj->outputStr;
 				break;
 			default :
-				$this->resultStr = "你好！请先注册，输入\"注册\"。\n^_^"	;		
+				$whObj->CheckRegister();
+				$this->resultStr = $whObj->outputStr;
+				break;		
 		}
 	}
 	
