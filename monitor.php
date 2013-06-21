@@ -11,17 +11,19 @@ $password = "Hours9to5@FT";
 //Connecting to your database
 
 include ('LogsClass.Class.php');
-$dir="logs/monitor/".date("Y/m/d",time());
-$filename=date("His",time()).".log";
 
 
-while(1)
+
+//while(1)
 {
-	sleep(1);
-	$logs=new Logs($dir,$filename);
+	sleep(180);
 	$timestamp=time();
-	/*weekbalance Mon 1:00-2:00*/
-	if((1==date("w",$timestamp)) and (1==date("G",$timestamp)))
+	$dir="logs/monitor/".date("Y/m/d",$timestamp);
+	$filename=date("His",$timestamp).".log";
+	$logs=new Logs($dir,$filename);
+	
+	/*weekbalance Mon 0:00-1:00*/
+	if((1==date("w",$timestamp)) and (0==date("G",$timestamp)))
 	{
 	    @ $db = new mysqli($hostname, $username, $password, $dbname);
 
@@ -44,8 +46,8 @@ while(1)
         }
 	}
 	
-	/*monthbalance 1th 1:00-2:00*/
-	if((1==date("j",$timestamp)) and (1==date("G",$timestamp)))
+	/*monthbalance 1th 0:00-1:00*/
+	if((1==date("j",$timestamp)) and (0==date("G",$timestamp)))
 	{
 		@ $db = new mysqli($hostname, $username, $password, $dbname);
 
@@ -67,7 +69,7 @@ while(1)
             $db->close();
         }
 	}
-	$logs->close();
-	sleep(1800);
+	////$logs->close();
+	//sleep(1620);
 	
 }

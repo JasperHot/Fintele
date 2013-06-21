@@ -396,7 +396,7 @@ class WorkingHours
 				for ($i=0;$i<$result->num_rows;$i++){
 					$row = $result->fetch_row();
 					$weekbl=explode ( ".",$row[0]);	
-					if($weekbl[0]>0){
+					if($weekbl[0]>=0){
 						$weekblH=$weekbl[0];
 						$weekblM=explode ( ".",$weekbl[1]/10000*60);
 						$this->outputStr = "本周结余".$weekblH."小时".$weekblM[0]."分钟.";
@@ -408,7 +408,7 @@ class WorkingHours
 					}
 					$this->outputStr .="\n\r";
 					$monthbl=explode ( ".",$row[1]);
-					if($monthbl[0]>0){
+					if($monthbl[0]>=0){
 						$monthblH=$monthbl[0];
 						$monthblM=explode ( ".",$monthbl[1]/10000*60);
 						$this->outputStr .= "本月结余".$monthblH."小时".$monthblM[0]."分钟.";
