@@ -52,7 +52,7 @@ class WorkingHours
 			}
 			else
 			{
-				$this->outputStr = "已注册,无需重复注册.可输入\"上班\",\"下班\"或\"查询\".";
+				$this->outputStr = "已注册,无需重复注册.可输入\"上班\",\"下班\"或\"帮助\"查看更多功能.";
 			}
 
 			$result->close();
@@ -462,6 +462,252 @@ class WorkingHours
 		}
 	}
 	
+	public function requestHalfDayOff ()
+	{
+			global $logs;
+		//connect to DB
+		@ $db = new mysqli($this->hostname, $this->username, $this->password, $this->dbname);
+		if (mysqli_connect_errno())
+			exit;
+		//find if it is inserted
+		$query = "select ID from User where ID='".$this->userID."'";
+		$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:select:".$query);
+		
+		$result = $db->query($query);
+		
+		if(!$result)
+		{
+			$this->outputStr = "查询失败";
+			$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:select failed:".$db->error);
+		}
+		else//if select sucessful
+		{
+			$timestamp=time();
+			$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:select sucessful");
+			
+			if($result->num_rows==0)
+			{
+				$this->outputStr = "请先输入\"注册\",注册后可使用更多功能.或\"帮助\"来查看更多功能.";
+			}
+			else//if it registered
+			{
+				$queryDC = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS('".date("Y-m-d",$timestamp)."') "
+						." and ID='".$this->userID."' and inorout=3";
+				$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:select:".$query);
+				
+				$resultDC = $db->query($queryDC);
+				
+				if(!$resultDC)
+				{
+					$this->outputStr = "查询失败";
+					$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:select failed:".$db->error);
+				}
+				else{
+					if($resultDC->num_rows==0)
+					{
+						$query2 = "insert into Record values ('".$this->userID."', '".date("Y-m-d H:i:s",$timestamp)."', 3)";/*3-halfday*/
+						$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:".$query2);
+						$result2 = $db->query($query2);
+						if ($result2){
+							$this->outputStr = "请假半天成功,时间".date("Y-m-d H:i:s",$timestamp);
+							$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:insert sucessful");
+						
+							//update weekbalance & monthbalance
+							$queryBL = "select weekbalance,monthbalance from User where ID='".$this->userID."' limit 0,1";
+							$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:select:".$queryBL);
+						
+							$resultBL = $db->query($queryBL);
+							if(!$resultBL){
+								$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:select failed:".$db->error);
+							}else{
+								if($resultBL->num_rows==0){
+									$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:select failed:".$db->error);
+								}
+								for ($i=0;$i<$resultBL->num_rows;$i++){
+									$row = $resultBL->fetch_row();
+						
+									$row[0]+=5;
+									$row[1]+=5;
+						
+									$query3 = "update User set weekbalance=".$row[0].", monthbalance=".$row[1]." where ID='".$this->userID."'";
+									$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:".$query3);
+									$result3 = $db->query($query3);
+									if (!$result3){
+										$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:update failed:".$db->error);
+									}
+								}
+								$resultBL->close();
+							}
+						
+						}
+						else {
+							$this->outputStr = "请假失败 :(";
+							$logs->setLogW(__FILE__, __LINE__,"requestHalfDayLeave:insert failed:".$db->error);
+						}
+					}
+					else{
+						for($i=0;$i<$resultDC->num_rows;$i++)
+						{
+						    $row = $resultDC->fetch_row();
+						    $this->outputStr = "今天已请假半天,时间".$row[0];
+						    $logs->setLogW(__FILE__, __LINE__,"requestHalfLeave:select sucessful");
+						}
+					}
+					$resultDC->close();
+				}
+				
+			}
+			$result->close();
+		}
+		$db->close();
+	}
+	
+	public function requestOneDayOff ()
+	{
+		global $logs;
+		//connect to DB
+		@ $db = new mysqli($this->hostname, $this->username, $this->password, $this->dbname);
+		if (mysqli_connect_errno())
+			exit;
+		//find if it is inserted
+		$query = "select ID from User where ID='".$this->userID."'";
+		$logs->setLogW(__FILE__, __LINE__,"requestOneDayLeave:select:".$query);
+	
+		$result = $db->query($query);
+	
+		if(!$result)
+		{
+			$this->outputStr = "查询失败";
+			$logs->setLogW(__FILE__, __LINE__,"requestOneDayLeave:select failed:".$db->error);
+		}
+		else//if select sucessful
+		{
+			$timestamp=time();
+			$logs->setLogW(__FILE__, __LINE__,"requestOneDayLeave:select sucessful");
+				
+			if($result->num_rows==0)
+			{
+				$this->outputStr = "请先输入\"注册\",注册后可使用更多功能.或\"帮助\"来查看更多功能.";
+			}
+			else//if it registered
+			{
+				$queryDC = "select datetime from Record where TO_DAYS(datetime)=TO_DAYS('".date("Y-m-d",$timestamp)."') "
+						." and ID='".$this->userID."' and inorout=4";
+				$logs->setLogW(__FILE__, __LINE__,"requestOneDayLeave:select:".$query);
+				
+				$resultDC = $db->query($queryDC);
+				
+				if(!$resultDC)
+				{
+					$this->outputStr = "查询失败";
+					$logs->setLogW(__FILE__, __LINE__,"requestOneDayLeave:select failed:".$db->error);
+				}
+				else{
+					if($resultDC->num_rows==0)
+					{
+						$query2 = "insert into Record values ('".$this->userID."', '".date("Y-m-d H:i:s",$timestamp)."', 4)";/*4-oneday*/
+						$logs->setLogW(__FILE__, __LINE__,"requestOneDayLeave:".$query2);
+						$result2 = $db->query($query2);
+						if ($result2){
+							$this->outputStr = "请假全天成功,时间".date("Y-m-d H:i:s",$timestamp);
+							$logs->setLogW(__FILE__, __LINE__,"requestOneDayLeave:insert sucessful");
+						
+						}
+						else {
+							$this->outputStr = "请假失败 :(";
+							$logs->setLogW(__FILE__, __LINE__,"requestOneDayLeave:insert failed:".$db->error);
+						}
+					}
+					else//if it registered
+					{
+						for($i=0;$i<$resultDC->num_rows;$i++)
+						{
+							$row = $resultDC->fetch_row();
+						    $this->outputStr = "今天已请假全天,时间".$row[0];
+						    $logs->setLogW(__FILE__, __LINE__,"requestOneDayLeave:select sucessful");
+						}
+					}
+					$resultDC->close();
+				}
+				
+			}
+			$result->close();
+		}
+		$db->close();
+	}
+	
+	public function showRecord ()
+	{
+		global $logs;
+		//connect to DB
+		@ $db = new mysqli($this->hostname, $this->username, $this->password, $this->dbname);
+		if (mysqli_connect_errno())
+			exit;
+		//find if it is inserted
+		$query = "select ID from User where ID='".$this->userID."'";
+		$logs->setLogW(__FILE__, __LINE__,"showRecord:select:".$query);
+	
+		$result = $db->query($query);
+	
+		if(!$result)
+		{
+			$this->outputStr = "查询失败";
+			$logs->setLogW(__FILE__, __LINE__,"showRecord:select failed:".$db->error);
+		}
+		else//if select sucessful
+		{
+			$logs->setLogW(__FILE__, __LINE__,"showRecord:select sucessful");
+	
+			if($result->num_rows==0)
+			{
+				$this->outputStr = "请先输入\"注册\",注册后可使用更多功能.或\"帮助\"来查看更多功能.";
+			}
+			else//if it registered
+			{
+				$query2 = "select datetime,inorout from Record where ID='".$this->userID."' order by datetime DESC limit 0,20";
+				$logs->setLogW(__FILE__, __LINE__,"showRecord:".$query2);
+				$result2 = $db->query($query2);
+				if (!$result2){
+					$this->outputStr = "查询失败";
+			        $logs->setLogW(__FILE__, __LINE__,"showRecord:select failed:".$db->error);
+	
+				}
+				else {
+					$logs->setLogW(__FILE__, __LINE__,"showRecord:select sucessful");
+					
+					if($result2->num_rows==0)
+					{
+						$this->outputStr = "你还没有上下班记录.请输入\"帮助\"来查看更多功能";
+					}
+					else//if it registered
+					{
+						$this->outputStr="最近的上下班记录：\n";
+						for ($i=0;$i<$result2->num_rows;$i++)
+						{
+							$row = $result2->fetch_row();
+							if($row[1]==1){
+							    $this->outputStr.="上班:".$row[0]."\n";
+							}
+							else if($row[1]==2){
+							    $this->outputStr.="下班:".$row[0]."\n";
+							}
+							else if($row[1]==3){
+								$this->outputStr.="请假半天:".$row[0]."\n";
+							}
+							else if($row[1]==4){
+								$this->outputStr.="请假全天:".$row[0]."\n";
+							}
+						}
+						$logs->setLogW(__FILE__, __LINE__,"showRecord:".$this->outputStr);
+					}
+					$result2->close();
+				}
+			}
+			$result->close();
+		}
+		$db->close();
+	}
+	
 	public function CheckRecord ()
 	{
 		//search and notify recods in DB Record_table
@@ -477,14 +723,6 @@ class WorkingHours
 		//delete all records in DB Record_table
 	}
 	
-	public function HalfDayOff ()
-	{
-		
-	}
-	
-	public function DayOff ()
-	{
-		
-	}
+
 }
 ?>
