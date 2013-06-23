@@ -453,11 +453,11 @@ class WorkingHours
 			
 			if($result->num_rows==0)
 			{
-				$this->outputStr = "请先注册。";
+				$this->outputStr = "请先输入\"注册\",注册后可使用更多功能.或\"帮助\"来查看更多功能.";
 			}
 			else//if it registered
 			{
-				$this->outputStr = "请输入\"上班\",\"下班\"或\"查询\".";
+				$this->outputStr = "请输入\"上班\",\"下班\",\"查询\"或\"帮助\"来查看更多功能.";
 			}
 		}
 	}

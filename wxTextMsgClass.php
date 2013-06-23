@@ -77,9 +77,27 @@ class wechatCallbackapiTest
 				$whObj->CheckBalance();
 				$this->resultStr = $whObj->outputStr;
 				break;
+			case "帮助" :
+				$helpMsg = "Fintele可以帮你通过微信管理工作时间，输入下面的关键字，就能体验多种功能：\n\n".
+							"- 注册：注册之后即可记录并查询时间\n\n".
+							"- 上班：记录每天上班时间，并建议下班时间。只记录最早的一次上班时间\n\n".
+							"- 下班：记录每天下班时间，并显示当天工作时间。记录最晚的一次下班时间，可以多次更新下班时间\n\n".
+							"- 查询：查询本周结余和本月结余。本周结余周末自动归零，本月结余月末自动归零\n\n".
+							"- 帮助：现在正在查看的就是哦\n\n".
+							"更多功能，敬请期待！如有建议，欢迎反馈 ^_^";
+				$this->resultStr = $helpMsg;
+				break;	
 			default :
-				$whObj->CheckRegister();
-				$this->resultStr = $whObj->outputStr;
+				$helpMsg = "Fintele可以帮你通过微信管理工作时间，输入下面的关键字，就能体验多种功能：\n\n".
+							"- 注册：注册之后即可记录并查询时间\n\n".
+							"- 上班：记录每天上班时间，并建议下班时间。只记录最早的一次上班时间\n\n".
+							"- 下班：记录每天下班时间，并显示当天工作时间。记录最晚的一次下班时间，可以多次更新下班时间\n\n".
+							"- 查询：查询本周结余和本月结余。本周结余周末自动归零，本月结余月末自动归零\n\n".
+							"- 帮助：现在正在查看的就是哦\n\n".
+							"更多功能，敬请期待！如有建议，欢迎反馈 ^_^";
+				$this->resultStr = $helpMsg;
+				//$whObj->CheckRegister();
+				//$this->resultStr = $whObj->outputStr;
 				break;		
 		}
 	}
